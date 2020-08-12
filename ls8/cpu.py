@@ -7,7 +7,23 @@ class CPU:
 
     def __init__(self):
         """Construct a new CPU."""
-        pass
+        self.ram = [0] * 256
+        self.register = [0] * 8
+        self.pc = 0
+        self.hlt = False
+
+    def prn(self, address):
+        print(self.register[address])
+
+
+    def ram_read(self, meme):
+        return self.ram[meme]
+
+    def ram_write(self, meme, data):
+        self.ram[meme] = data
+
+    def mul(self, operand_a, operand_b):
+        self.register[operand_a] = self.register[operand_a] * self.register[operand_b]
 
     def load(self):
         """Load a program into memory."""
@@ -16,19 +32,29 @@ class CPU:
 
         # For now, we've just hardcoded a program:
 
-        program = [
-            # From print8.ls8
-            0b10000010, # LDI R0,8
-            0b00000000,
-            0b00001000,
-            0b01000111, # PRN R0
-            0b00000000,
-            0b00000001, # HLT
-        ]
-
-        for instruction in program:
-            self.ram[address] = instruction
-            address += 1
+        # program = [
+        #     # From print8.ls8
+        #     0b10000010, # LDI R0,8
+        #     0b00000000,
+        #     0b00001000,
+        #     0b01000111, # PRN R0
+        #     0b00000000,
+        #     0b00000001, # HLT
+        # ]
+        program_name = sys.argv[1]
+        #Reading each file,
+        #When it gets the file nd it no work it fails
+        with open(program_name, "r") as file:
+            for line in file:
+                try:
+                    instruction = int (line[:8], 2)
+                    self.ram[address] = instruction
+                    address += 1
+                except ValueError:
+                    pass
+        # for instruction in program:
+        #     self.ram[address] = instruction
+        #     address += 1
 
 
     def alu(self, op, reg_a, reg_b):
@@ -62,4 +88,33 @@ class CPU:
 
     def run(self):
         """Run the CPU."""
-        pass
+
+        while self.hlt == False:
+            instruction = self.ram[self.pc]
+            operand_a = self.ram_read(self.pc+1)
+            operand_b = self.ram_read(self.pc+2)
+            #LDI
+            if instruction == 0b10000010:
+
+                self.register[operand_a] = operand_b
+                self.pc += 3
+            #Print method
+            if instruction == 0b01000111:
+                self.prn(operand_a)
+                self.pc += 2
+            #instruction = bin(instruction)[6:]
+
+            if instruction == 0b00000001:
+                self.hlt = True
+            #Multiply
+            if instruction == 0b10100010:
+                self.mul(operand_a, operand_b)
+                self.pc+=3
+
+
+cpu = CPU()
+cpu.load()
+cpu.run()
+
+
+
