@@ -134,7 +134,8 @@ class CPU:
             #THIS WILL POTENTIALLY RUN ALL OPCODES UP TOP
             if instruction in self.opcodes:
                 self.opcodes[instruction](operand_a, operand_b)
-
+            #TELLS YOU HOW MANY OF THE NEXT INSTRU
+            #ARE TO BE USED IN THE PROGRAM
             numbofoperands = instruction >> 6
             self.pc += 1 + numbofoperands
 
